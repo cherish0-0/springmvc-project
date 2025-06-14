@@ -174,6 +174,41 @@ public class BasicItemController {
     }
 
     /**
+     * Handles GET requests for displaying the item edit form.
+     *
+     * @GetMapping("/{itemId}/edit"): Maps HTTP GET requests to "/basic/items/{itemId}/edit" to this handler method
+     * @PathVariable Long itemId: Extracts the itemId from the URL path
+     *
+     * This method retrieves the item with the specified ID from the repository,
+     * adds it to the model so it can be fiooed with existing values in the form,
+     * and returns the view name for the edit form template.
+     */
+    @GetMapping("/{itemId}/edit")
+    public String editForm(@PathVariable Long itemId, Model model) {
+        Item item = itemRepository.findById(itemId);
+        model.addAttribute("item", item);
+        return "basic/editForm";
+    }
+
+    /**
+     * Handles POST requests for processing the item edit form submission.
+     *
+     * @ModelAttribute Item item: Binds form data to an Item object and adds it to the model
+     *
+     * This method updates the existing item in the repository with the edited values from the form.
+     * After successfully updating the item, it redirects to the item detail page using a PRG
+     * (Post/Redirect/Get) pattern to prevent duplicate form submissions.
+     *
+     * The {itemId} in the redirect URL is automatically replaced with the actual itemId value
+     * by Spring MVC, allowing for a clean way to redirect to the specific item's detail page.
+     */
+    @PostMapping("/{itemId}/edit")
+    public String edit(@PathVariable Long itemId, @ModelAttribute Item item) {
+        itemRepository.update(itemId, item);
+        return "redirect:/basic/items/{itemId}";
+    }
+
+    /**
      * Initialization method that runs after dependency injection is complete
      *
      * @PostConstruct: Java annotation indicating that this method should be executed
