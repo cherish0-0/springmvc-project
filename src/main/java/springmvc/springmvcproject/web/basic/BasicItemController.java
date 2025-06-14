@@ -2,12 +2,9 @@ package springmvc.springmvcproject.web.basic;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import springmvc.springmvcproject.domain.item.Item;
 import springmvc.springmvcproject.domain.item.ItemRepository;
 
@@ -86,6 +83,94 @@ public class BasicItemController {
     @GetMapping("/add")
     public String addForm() {
         return "basic/addForm";
+    }
+
+    /**
+     * Version 1: Process item addition using individual request parameters
+     *
+     * @RequestParam: Annotation to bind HTTP request parameters to method parameters
+     *
+     * This method manually extracts each parameter from the request,
+     * creates a new Item object, sets its properties individually,
+     * saves it to the repository, and then adds it to the model.
+     * This approach is more verbose(장황한) but gives explicit(명백한) control over parameter handling.
+     */
+    // @PostMapping("/add")
+    public String addItemV1(@RequestParam String itemName,
+                       @RequestParam int price,
+                       @RequestParam Integer quantity,
+                       Model model) {
+        Item item = new Item();
+        item.setItemName(itemName);
+        item.setPrice(price);
+        item.setQuantity(quantity);
+
+        itemRepository.save(item);
+
+        model.addAttribute("item", item);
+
+        return "basic/item";
+    }
+
+    /**
+     * Version 2: Process item addition using @ModelAttribute with explicit name
+     *
+     * @ModelAttribute("item"): Annotation that binds request parameters to a model object
+     *                        and also adds that object to the model with the specified name ("item")
+     *
+     * This method uses @ModelAttribute with an explicit name ("item") which:
+     * 1. Creates an Item object
+     * 2. Binds request parameters to the Item object properties
+     * 3. Adds the Item to the model with the name "item"
+     * This removes the need for manual parameter binding and model addition.
+     */
+    // @PostMapping("/add")
+    public String addItemV2(@ModelAttribute("item") Item item) {
+
+        itemRepository.save(item);
+
+        // model.addAttribute("item", item); // No need to add item to model, @ModelAttribute does it automatically
+
+        return "basic/item";
+    }
+
+    /**
+     * Version 3: Process item addition using @ModelAttribute without explicit name
+     *
+     * @ModelAttribute: Annotation without an explicit name
+     *
+     * When @ModelAttribute is used without specifying a name, Spring automatically
+     * adds the object to the model using the class name with the first letter lowercased. (Item -> "item")
+     */
+    // @PostMapping("/add")
+    public String addItemV3(@ModelAttribute Item item) {
+
+        itemRepository.save(item);
+
+        // model.addAttribute("item", item); // No need to add item to model, @ModelAttribute does it automatically
+
+        return "basic/item";
+    }
+
+    /**
+     * Version 4: Process item addition with implicit @ModelAttribute
+     *
+     * This method doesn't use the @ModelAttribute annotation entirely.
+     * Spring MVC automatically applies @ModelAttribute for any parameter
+     * that is not a simple type (like String, int, etc.) and is not
+     * annotated with other parameter annotations (like @RequestParam).
+     *
+     * This is the most compact approach but may be less clear to developers
+     * unfamiliar with Spring MVC's parameter handling conventions.
+     */
+    @PostMapping("/add")
+    public String addItemV4(Item item) {
+
+        itemRepository.save(item);
+
+        // model.addAttribute("item", item); // No need to add item to model, @ModelAttribute does it automatically
+
+        return "basic/item";
     }
 
     /**
