@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import springmvc.springmvcproject.domain.item.Item;
 import springmvc.springmvcproject.domain.item.ItemRepository;
@@ -37,7 +38,8 @@ public class BasicItemController {
     private final ItemRepository itemRepository;
 
     /**
-     * Handler method that processes GET requests to "/basic/items"
+     * Handles GET requests for listing all items.
+     * Retrieves all items from the repository and adds them to the model.
      *
      * @GetMapping: Annotation that maps HTTP GET requests to this handler method
      * @param model: Spring's Model interface used to pass data from controller to view
@@ -51,6 +53,26 @@ public class BasicItemController {
         List<Item> items = itemRepository.findAll();
         model.addAttribute("items", items);
         return "basic/items";
+    }
+
+    /**
+     * Handles GET requests for a specific item by its ID.
+     * Retrieves the item from the repository and adds it to the model.
+     *
+     * @PathVariable: Annotation that indicates the itemId parameter should be bound
+     *                to a URI template variable
+     * @param itemId: The ID of the item to be retrieved
+     * @param model: Spring's Model interface used to pass data from controller to view
+     * @return String: Returns the view name to be rendered (maps to a template file)
+     *
+     * This method retrieves a specific item based on the provided itemId
+     * and makes it available to the view template
+     */
+    @GetMapping("{itemId}")
+    public String item(@PathVariable long itemId, Model model) {
+        Item item = itemRepository.findById(itemId);
+        model.addAttribute("item", item);
+        return "basic/item";
     }
 
     /**
