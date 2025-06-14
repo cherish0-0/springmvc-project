@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import springmvc.springmvcproject.domain.item.Item;
 import springmvc.springmvcproject.domain.item.ItemRepository;
 
@@ -181,12 +182,41 @@ public class BasicItemController {
      * This pattern prevents duplicate submissions if the user refreshes the page,
      * as they'll refresh the GET result page rather than resubmitting the POST request.
      */
-    @PostMapping("/add")
+    // @PostMapping("/add")
     public String addItemV5(Item item) {
 
         itemRepository.save(item);
 
         return "redirect:/basic/items/" + item.getId();
+    }
+
+    /**
+     * Version 6: Process item addition with RedirectAttributes to handle redirect parameters safely
+     *
+     * @param redirectAttributes: Spring's RedirectAttributes interface for adding attributes to a redirect
+     *
+     * This method improves upon Version 5 by using RedirectAttributes, which offers several advantages:
+     * 1. URL encoding: Values are automatically URL encoded to prevent URL injection issues
+     * 2. Path variable binding: The {itemId} in the redirect URL is replaced with the item ID
+     *    (no need for string joining)
+     * 3. Query parameter support: Additional attributes not used as path variables are
+     *    automatically appended as query parameters
+     *
+     * In this implementation:
+     * - "itemId" becomes a path variable in the redirect URL
+     * - "status=true" is added as a query parameter to indicate successful item creation
+     *
+     * The resulting URL will be something like: "/basic/items/1?status=true"
+     * This status parameter can be used in the view to display a success message.
+     */
+    @PostMapping("/add")
+    public String addItemV6(Item item, RedirectAttributes redirectAttributes) {
+
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        redirectAttributes.addAttribute("status", true);
+
+        return "redirect:/basic/items/{itemId}";
     }
 
     /**
