@@ -76,6 +76,19 @@ public class BasicItemController {
     }
 
     /**
+     * Handles GET requests for displaying the item creation form.
+     *
+     * @GetMapping("/add"): Maps HTTP GET requests to "/basic/items/add" to this handler method
+     *
+     * This method does not pass any model attributes as it's just displaying an empty form.
+     * The form will POST its data to a separate endpoint that handles the item creation.
+     */
+    @GetMapping("/add")
+    public String addForm() {
+        return "basic/addForm";
+    }
+
+    /**
      * Initialization method that runs after dependency injection is complete
      *
      * @PostConstruct: Java annotation indicating that this method should be executed
