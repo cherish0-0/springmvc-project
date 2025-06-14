@@ -147,8 +147,6 @@ public class BasicItemController {
 
         itemRepository.save(item);
 
-        // model.addAttribute("item", item); // No need to add item to model, @ModelAttribute does it automatically
-
         return "basic/item";
     }
 
@@ -163,14 +161,32 @@ public class BasicItemController {
      * This is the most compact approach but may be less clear to developers
      * unfamiliar with Spring MVC's parameter handling conventions.
      */
-    @PostMapping("/add")
+    //  @PostMapping("/add")
     public String addItemV4(Item item) {
 
         itemRepository.save(item);
 
-        // model.addAttribute("item", item); // No need to add item to model, @ModelAttribute does it automatically
-
         return "basic/item";
+    }
+
+    /**
+     * Version 5: Process item addition with redirect to prevent duplicate form submission
+     *
+     * This method implements the PRG (Post-Redirect-Get) pattern to solve the form resubmission problem:
+     * 1. The browser POSTs form data to create an item
+     * 2. The server processes the data and saves the item
+     * 3. The server responds with a redirect (302 Found) instead of returning the view directly
+     * 4. The browser follows the redirect with a GET request to the item's detail page
+     *
+     * This pattern prevents duplicate submissions if the user refreshes the page,
+     * as they'll refresh the GET result page rather than resubmitting the POST request.
+     */
+    @PostMapping("/add")
+    public String addItemV5(Item item) {
+
+        itemRepository.save(item);
+
+        return "redirect:/basic/items/" + item.getId();
     }
 
     /**
